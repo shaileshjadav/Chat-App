@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+
+
+    <title>Hello, world!</title>
+    <style>
+        body{
+            margin-top: 50px;
+        }
+        .myclass{
+            background:grey;
+            padding: 10px; 
+            margin:10px;
+        }
+        #messageFormArea{
+            display: none;
+        }
+</style>
+</head>
+  <body>
+    
+    <div class="container">
+        <div class="row" id="userFormArea">
+            <div class="col-md-12">
+
+           
+                <form action="" id="userForm">
+                        <div class="form-group">
+                            <label for="">Enter Username</label>
+                            <!-- <textarea name="" id="message" class="form-control" cols="2" rows="3"></textarea> -->
+                            <input type="text" id="username" class="form-control">
+                            <br/>
+                            <input type="submit" class="btn btn-primary" value="Login">
+        
+                        </div>
+                    </form>
+        </div>
+    </div>
+
+
+        <div class="row" id="messageFormArea">
+            <div class="col-md-3">
+                <h3>Online users</h3>
+                <ul class="list-group" id="users" class="well"></ul>
+            </div>
+        
+        <div class="col-md-8">
+            <div class="chat" id="chat"></div>
+            <form action="" id="messageForm">
+                <div class="form-group">
+                    <label for="">Enter message</label>
+                    <textarea name="" id="message" class="form-control" cols="2" rows="3"></textarea>
+                    <br/>
+                    <input type="submit" class="btn btn-primary" value="send message">
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <!-- It will automatically loaded from our creates http server -->
+<script src="/socket.io/socket.io.js"></script>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+  
+    <!-- custom script -->
+    <script>
+        $(function(){
+            var socket=io.connect();
+            var messageForm=$('#messageForm');
+            var message=$('#message');
+            var messageFormArea=$('#messageFormArea');
+            var chat=$('#chat');
+            var userForm=$('#userForm');
+            var userFormArea=$('#userFormArea');
+            var users=$('#users');
+            var username=$('#username')
+
+            messageForm.submit(function(e){
+                e.preventDefault();
+                socket.emit('send message',message.val());
+                message.val('');
+            });
+
+            //get message from server
+            socket.on('new message',function(data){
+                chat.append('<div class="myclass"><strong>'+data.user+':</strong>'+data.msg+'</div>');
+            });
+
+
+            userForm.submit(function(e){
+                e.preventDefault();
+                socket.emit('new user',username.val(),function(data){
+                    if(data){
+                        userFormArea.hide();
+                        messageFormArea.show();
+                    }
+                });
+                username.val('');
+            });
+
+
+            //get online users
+            socket.on('get users',function(data){
+                var html='';
+                for(i=0; i<data.length;i++){
+                    html+='<li class="list-group-item">'+data[i]+'</li>';
+                }
+                users.html(html);
+            });
+        });
+  </script>
+
+</body>
+</html>

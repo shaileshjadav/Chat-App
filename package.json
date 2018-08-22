@@ -1,0 +1,10 @@
+{
+  "name": "chatapp",
+  "version": "1.0.0",
+  "author": "shailsh jadav",
+  "main": "server.js",
+  "dependencies": {
+    "socket.io": "*",
+    "express": "*"
+  }
+}
